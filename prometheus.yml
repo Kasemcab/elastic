@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 8s  # Scrape metrics from all targets every 8 seconds globally
+  external_labels:
+    monitor: "Monitoring"  # Label added to all metrics
+
+scrape_configs:
+  # Scraping Prometheus own metrics
+  - job_name: "prometheus"
+    scrape_interval: 8s  # Consistent with the global scrape interval
+    static_configs:
+      - targets: ["prometheus:9090"]  # Prometheus metrics endpoint
+
+  # Scraping Elasticsearch Exporter metrics
+  - job_name: "elastic-exporter"
+    scrape_interval: 8s
+    static_configs:
+      - targets: ["elasticsearch_exporter:9114"] 
+    relabel_configs:
+      - source_labels: [__name__]
+        target_label: metric_name
+      - source_labels: [metric_name]
+        target_label: index
+        replacement: 'newin'
+  - job_name: "elastic-search"
+    scrape_interval: 8s  # You can adjust the interval if needed
+    static_configs:
+      - targets: ["elasticsearch:9200"]  # The target is the Elasticsearch URL
+    basic_auth:
+      username: "elastic"  # Elasticsearch username
+      password: "changeme"  # Elasticsearch password
+

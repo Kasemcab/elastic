@@ -1,0 +1,44 @@
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:8.1.0
+    ports:
+      - 9200:9200
+    environment:
+      discovery.type: 'single-node'
+      xpack.security.enabled: 'true'
+      ELASTIC_PASSWORD: 'changeme'
+      ES_JAVA_OPTS: '-Xmx2g -Xms2g'
+  kibana:
+    image: kibana:8.1.0
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+
+  elasticsearch_exporter:
+    image: bitnami/elasticsearch-exporter:latest
+    command:
+     - '--es.uri=http://elastic:changeme@elasticsearch:9200'
+    volumes:
+      - ./metrics.yml:/etc/elasticsearch_exporter/metrics.yml
+    restart: always
+    ports:
+    - "9114:9114"
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml 
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml 
+    ports:
+      - "9090:9090"
+    restart: always
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin 
+      - GF_SECURITY_ADMIN_USER=admin     
+    ports:
+      - "3000:3000"                       

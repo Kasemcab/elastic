@@ -1,0 +1,6 @@
+- metric_name: elasticsearch_indices_docs_counts
+  elasticsearch_url: http://elastic:changeme@elasticsearch:9200
+  query: "/newin/_stats?metric=docs"
+  value_key: "indices.newin.docs.count"
+  labels:
+    index: "newin"
