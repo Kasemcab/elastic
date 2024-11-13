@@ -1,0 +1,11 @@
+[[metric]]
+context = "context_with_labels"
+labels = ["STANDARD"]
+request = "select count(*) as STANDARD from FREE.EMPLOYEE"
+metricsdesc = {STANDARD = "Simple example returning always 1 as counter.", value_2 = "Same but returning always 2 as gauge."}
+
+
+[[metric]]
+context = "big_queries"
+metricsdesc = { p95_rows= "Gauge metric with percentile 95 of returned rows.", p99_rows= "Gauge metric with percentile 99 of returned rows." }
+request = "select  percentile_disc(0.95)  within group (order by rownum) as p95_rows, percentile_disc(0.99)  within group (order by rownum) as p99_rows from v$sql where last_active_time >= sysdate - 5/(24*60)"

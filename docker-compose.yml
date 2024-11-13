@@ -17,7 +17,7 @@ services:
       - 5601:5601
 
   elasticsearch_exporter:
-    image: bitnami/elasticsearch-exporter:latest
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
     command:
      - '--es.uri=http://elastic:changeme@elasticsearch:9200'
     volumes:
@@ -30,7 +30,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml 
     command:
-      - --config.file=/etc/prometheus/prometheus.yml 
+      - --config.file=/etc/prometheus/prometheus.yml # Assuming you have a prometheus.yml file on your host
     ports:
       - "9090:9090"
     restart: always
@@ -38,7 +38,36 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin 
-      - GF_SECURITY_ADMIN_USER=admin     
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Default admin password
+      - GF_SECURITY_ADMIN_USER=admin      # Default admin user
     ports:
-      - "3000:3000"                       
+      - "3000:3000"                       # Expose Grafana on port 3000 
+  oracle:
+    image: gvenzl/oracle-xe:latest  # Official Oracle XE (Express Edition) image for development
+    environment:
+      - ORACLE_PASSWORD=welcome12345  # Set the default SYS/SYSTEM password
+    ports:
+      - 1521:1521  
+    networks:
+      - oracle-net                   # Oracle DB port
+
+  oracle-exporter:
+    image: iamseth/oracledb_exporter
+    environment:  
+      - DATA_SOURCE_NAME=oracle://SYS:welcome12345@oracle:1521/XE AS SYSDBA
+      - TNS_ENTRY=XE
+      - TNS_ADMIN=/etc/tns_admin
+
+    ports:
+      - "9161:9161"
+    command:
+      - --custom.metrics
+      - /etc/oracledb_exporter/custom-metrics.toml
+    volumes:
+      - C:\Users\User\Desktop\project\docker-elk\custom-metrics.toml:/etc/oracledb_exporter/custom-metrics.toml
+      - C:\Users\User\Desktop\project\docker-elk\tnsnames.ora:/etc/tns_admin/tnsnames.ora
+    networks:
+      - oracle-net
+networks:
+  oracle-net:
+    driver: bridge

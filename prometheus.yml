@@ -28,4 +28,7 @@ scrape_configs:
     basic_auth:
       username: "elastic"  # Elasticsearch username
       password: "changeme"  # Elasticsearch password
+  - job_name: "oracle_exporter"
+    static_configs:
+      - targets: ["oracle-exporter:9161"]
 
